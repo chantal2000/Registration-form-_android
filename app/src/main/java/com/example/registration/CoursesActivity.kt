@@ -1,27 +1,35 @@
-package com.example.registration
 
+package com.example.registration
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.view.View
+import android.widget.*
+import com.example.registration.api.ApiClient
+import com.example.registration.api.ApiInterface
+import com.example.registration.databinding.ActivityMainBinding
+import com.example.registration.models.RegistrationRequest
+import com.example.registration.models.RegistrationResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 class CoursesActivity : AppCompatActivity() {
-    lateinit var rvCourses:RecyclerView
+    lateinit var rvCourses: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_courses)
+        setContentView(R.layout.activity_course)
+        displayCourses()
     }
-fun displayCourses(){
-    var coursesList= listOf<Course>(
-        Course("Android","AND 101","Mobile development is the best","John"),
-        Course("JS","JS 102","javascript is the frontend ","Maina"),
-        Course("Python","Py 103","Python is the backend","James"),
-        Course("IOT","IOT 101","IOT is the best","Barre"),
+    fun displayCourses(){
+        var coursesList = listOf(
+            Course("Python","py 101","backend development","James Mwai"),
+            Course("Javascript","Js 201","Frontend development","Purity Maina"),
+            Course("Kotlin","Kt 101","Mobile develpment development","John Owuoe"),
         )
-    rvCourses=findViewById(R.id.rvCourses)
-    var coursesAdapter=CoursesAdapter(coursesList)
-    rvCourses.layoutManager=LinearLayoutManager(baseContext)
-    rvCourses.adapter=coursesAdapter
+        rvCourses = findViewById(R.id.rvCourses)
+        var coursesAdapter = CoursesRvAdapter(coursesList)
+        rvCourses.layoutManager = LinearLayoutManager(baseContext)
+        rvCourses.adapter = coursesAdapter
+    }
 }
-
-}
-
