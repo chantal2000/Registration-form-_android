@@ -1,18 +1,10 @@
 
-package com.example.registration
-import android.content.Intent
+package com.example.registration.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.*
-import com.example.registration.api.ApiClient
-import com.example.registration.api.ApiInterface
-import com.example.registration.databinding.ActivityMainBinding
-import com.example.registration.models.RegistrationRequest
-import com.example.registration.models.RegistrationResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.registration.R
+import com.example.registration.models.Course
 
 class CoursesActivity : AppCompatActivity() {
     lateinit var rvCourses: RecyclerView

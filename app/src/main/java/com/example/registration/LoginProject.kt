@@ -4,20 +4,34 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import com.example.registration.api.ApiClient
-import com.example.registration.api.ApiInterface
+import androidx.activity.viewModels
 import com.example.registration.databinding.ActivityLoginBinding
 import com.example.registration.models.LoginRequest
-import com.example.registration.models.RegistrationResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.registration.viewModel.UserViewModel
 
 class LoginProject : AppCompatActivity() {
+    lateinit var binding: ActivityLoginBinding
+    val userViewModel: UserViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login_project)
+        binding= ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         Login()
+    }
+    override fun onResume() {
+        super.onResume()
+        userViewModel.loginLiveData.observe(this, { lrgResponse->
+            if (lrgResponse.studentId.isNullOrEmpty()){
+                Toast.makeText(baseContext,"Login successful",Toast.LENGTH_LONG).show()
+
+            }
+            binding.pbLogin.visibility= View.GONE
+
+        })
+        userViewModel.errorLiveData.observe(this,{error->
+            Toast.makeText(baseContext,error,Toast.LENGTH_LONG).show()
+            binding.pbLogin.visibility= View.GONE
+        })
     }
 
 fun Login(){
@@ -39,27 +53,8 @@ fun Login(){
                 email= email,
                 password= password
             )
-            var retrofit= ApiClient.buildApiClient(ApiInterface::class.java)
-            var request= retrofit.loginStudent(lrgRequest)
-            request.enqueue(object : Callback<RegistrationResponse?> {
-                override fun onResponse(
-                    call: Call<RegistrationResponse?>,
-                    response: Response<RegistrationResponse?>
-                ) {
-                    binding.pbLogin.visibility= View.VISIBLE
-                    if (response.isSuccessful){
-                        Toast.makeText(baseContext, "Login is successful", Toast.LENGTH_LONG).show()
-                    }
-                    else{
-                        Toast.makeText(baseContext, response.errorBody()?.string(), Toast.LENGTH_LONG).show()
-                    }
-                }
+            userViewModel.loginStudent(lrgRequest)
 
-                override fun onFailure(call: Call<RegistrationResponse?>, t: Throwable) {
-                    binding.pbLogin.visibility=View.GONE
-                    Toast.makeText(baseContext, t.message, Toast.LENGTH_LONG).show()
-                }
-            })
         }
     }
 }

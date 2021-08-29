@@ -14,8 +14,8 @@
             android:name=".LoginProject"
             android:exported="true" />
         <activity android:name=".progress" />
-        <activity android:name=".CoursesActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.CoursesActivity" />
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,4 +1,4 @@
-package com.example.registration
+package com.example.registration.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,19 +7,35 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import com.example.registration.API.APIClient
 import com.example.registration.API.APIInterface
+import com.example.registration.LoginProject
 import com.example.registration.models.RegistrationRequest
 import com.example.registration.models.RegistrationResponse
+import com.example.registration.viewModel.userViewModel
+
 class MainActivity : AppCompatActivity() {
      lateinit var binding:ActivityMainBinding
+     val userViewModel:userViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupSpinner()
         btnRegister()
-
+    }
+    override fun onResume() {
+        super.onResume()
+        userViewModel.registrationLiveData.observe(this,{RegistrationResponse->
+            if (!RegistrationResponse.studentId.isNullOrEmpty(){
+                Toast.makeText(baseContext,"Registration successful",Toast.LENGTH_LONG).show()
+                }
+        })
+            userViewModel.errorLiveData.observe(this,{ error->
+                Toast.makeText(baseContext,error,Toast.LENGTH_LONG).show()
+                binding.pbRegistration.visibility=View.GONE
+            })
     }
     fun setupSpinner() {
         var nationalities= arrayOf("KENYAN","RWANDAN","SOUTH SUDANESE","UGANDAN")
@@ -30,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     fun btnRegister() {
         binding.btnLogin.setOnClickListener {
-            var intent= Intent(baseContext, LoginActivity::class.java)
+            var intent= Intent(baseContext, LoginProject::class.java)
             startActivity(intent)
         }
         var error = false
@@ -68,38 +84,17 @@ class MainActivity : AppCompatActivity() {
                 error = true
                 binding.etPassword.setError("this field required")
             }
-
             if (!error){
                 binding.pbRegistration.visibility=View.VISIBLE
                 var lrgRequest= RegistrationRequest(
                     name = name,
-                    PhoneNumber = phoneNumber,
+                    phoneNumber = phoneNumber,
                     email = email,
-                    dateOfBirth = dob,
-                    nationality = nationality,
+                    dateofbirth = dob,
+                    nationality = nationality.toUpperCase(),
                     password = password
                 )
-
-                var retrofit= ApiClient.buildApiClient(ApiInterface::class.java)
-                var request= retrofit.registerStudent(lrgRequest)
-                request.enqueue(object : Callback<RegistrationResponse?> {
-                    override fun onResponse(
-                        call: Call<RegistrationResponse?>,
-                        response: Response<RegistrationResponse?>
-                    ) {
-                        binding.pbRegistration.visibility=View.GONE
-                        if (response.isSuccessful){
-                            Toast.makeText(baseContext,"Registration successful", Toast.LENGTH_LONG).show()
-                        }
-                        else{
-                            Toast.makeText(baseContext, response.errorBody()?.string(), Toast.LENGTH_LONG).show()
-                        }
-                    }
-                    override fun onFailure(call: Call<RegistrationResponse?>, t: Throwable) {
-                        binding.pbRegistration.visibility=View.GONE
-                        Toast.makeText(baseContext, t.message, Toast.LENGTH_LONG).show()
-                    }
-                })
+userViewModel.registerStudent(RegistrationRequest)
             }
         }
     }
