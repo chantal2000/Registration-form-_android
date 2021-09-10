@@ -23,7 +23,6 @@ class CoursesAdapter(var courseList:List<Course>):RecyclerView.Adapter<CourseVie
         holder.tvInstructor.text=currentCourse.instructor
 
     }
-
     override fun getItemCount(): Int {
         return courseList.size
     }
@@ -34,6 +33,4 @@ class CourseViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
     var tvDesc=itemView.findViewById<TextView>(R.id.tvDesc)
     var tvCode=itemView.findViewById<TextView>(R.id.tvCode)
     var tvInstructor=itemView.findViewById<TextView>(R.id.tvInstructor)
-
-
 }

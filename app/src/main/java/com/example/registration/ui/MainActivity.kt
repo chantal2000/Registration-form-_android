@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import com.example.registration.API.APIClient
 import com.example.registration.API.APIInterface
+import com.example.registration.Constants
 import com.example.registration.LoginProject
 import com.example.registration.models.RegistrationRequest
 import com.example.registration.models.RegistrationResponse
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setupSpinner()
         btnRegister()
+        redirectUser()
     }
     override fun onResume() {
         super.onResume()
@@ -97,5 +99,18 @@ class MainActivity : AppCompatActivity() {
 userViewModel.registerStudent(RegistrationRequest)
             }
         }
+    }
+    fun redirectUser(){
+        var accessToken=sharedPrefs.getString(Constants.ACCESS_TOKEN,Constants.EMPTY_STRING)!!
+        if(accessToken.isNotEmpty() && accessToken.isNotBlank()){
+           startActivity(Intent(this,CoursesActivity::class.java))
+        }
+        else{
+            startActivity(this,LoginProject::class.java)
+        }
+    }
+    fun logout(){
+        var editor=sharedPrefs.
+                editor
     }
 }

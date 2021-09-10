@@ -1,5 +1,7 @@
 package com.example.registration
 
+import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -7,24 +9,34 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import com.example.registration.databinding.ActivityLoginBinding
 import com.example.registration.models.LoginRequest
+import com.example.registration.ui.CoursesActivity
 import com.example.registration.viewModel.UserViewModel
 
 class LoginProject : AppCompatActivity() {
     lateinit var binding: ActivityLoginBinding
+    lateinit var sharedPrefs: SharedPreferences
     val userViewModel: UserViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        Login()
+        sharedPrefs= getSharedPreferences(Constants.REGISTRATION_PREFS, Context.MODE_PRIVATE)
+        clickLogin()
     }
+
     override fun onResume() {
         super.onResume()
         userViewModel.loginLiveData.observe(this, { lrgResponse->
-            if (lrgResponse.studentId.isNullOrEmpty()){
-                Toast.makeText(baseContext,"Login successful",Toast.LENGTH_LONG).show()
+            var accessToken= lrgResponse.accesToken
+            accessToken="Bearer $accessToken"
+            var editor= sharedPrefs.edit()
+            editor.putString(Constants.ACCESS_TOKEN, accessToken)
+            editor.putString(Constants.STUDENT_ID,  lrgResponse.studentId)
+            editor.apply()
+            Toast.makeText(baseContext,lrgResponse.message,Toast.LENGTH_LONG).show()
+            startActivity(Intent(baseContext,CoursesActivity::class.java))
 
-            }
+
             binding.pbLogin.visibility= View.GONE
 
         })
@@ -34,29 +46,29 @@ class LoginProject : AppCompatActivity() {
         })
     }
 
-fun Login(){
-    var error= false
-    binding.btnLogin2.setOnClickListener {
-        var email= binding.tvEmail.text.toString()
-        if(email.isEmpty()){
-            error= true
-            binding.tvEmail.setError("This field required")
-        }
-        var password= binding.tvPassword.text.toString()
-        if(password.isEmpty()){
-            error= true
-            binding.tvPassword.setError("This field required")
-        }
-        if (!error){
-            binding.pbLogin.visibility= View.VISIBLE
-            var lrgRequest= LoginRequest(
-                email= email,
-                password= password
-            )
-            userViewModel.loginStudent(lrgRequest)
+    fun clickLogin(){
+        var error= false
+        binding.btnLogin2.setOnClickListener {
+            var email= binding.tvEmail.text.toString()
+            if(email.isEmpty() || email.isBlank()){
+                binding.tilEmail.error="This field required"
+                error= true
+            }
+            var password= binding.tvPassword.text.toString()
+            if(password.isEmpty()){
+                binding.tvPassword.error= "This field required"
+                error= true
+            }
+            if (!error){
+                binding.pbLogin.visibility= View.VISIBLE
+                var lrgRequest= LoginRequest(
+                    email= email,
+                    password= password
+                )
+                userViewModel.loginStudent(lrgRequest)
 
+            }
         }
     }
-}
 
 }
